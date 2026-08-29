@@ -1,26 +1,319 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+  GaragePass — industrial dark + hazard accent.
+
+  The site commits to a single dark look rather than following the OS theme:
+  it is art-directed against photographs of a working shop, and a light
+  variant would fight that imagery. Colours are therefore defined once.
+*/
+
+@theme {
+  /* Surfaces — near-black concrete through raised panel */
+  --color-void: oklch(0.13 0.005 250);
+  --color-surface: oklch(0.19 0.008 250);
+  --color-surface-2: oklch(0.24 0.009 250);
+  --color-hairline: oklch(0.32 0.008 250);
+
+  /* Type */
+  --color-paper: oklch(0.96 0.004 250); /* headings */
+  --color-steel: oklch(0.72 0.012 250); /* body */
+  --color-steel-dim: oklch(0.58 0.011 250); /* muted / captions */
+
+  /* Accents — hazard yellow carries every CTA and progress indicator */
+  --color-hazard: oklch(0.82 0.17 88);
+  --color-hazard-dim: oklch(0.68 0.14 88);
+  --color-ember: oklch(0.65 0.19 42); /* hover / active only */
+
+  /* Fonts wired up in layout.tsx via next/font */
+  --font-display: var(--font-oswald), "Arial Narrow", sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  /* Section rhythm */
+  --spacing-section: 7rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    /* Lenis drives smooth scrolling; native smooth would fight it. */
+    scroll-behavior: auto;
+    -webkit-text-size-adjust: 100%;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background-color: var(--color-void);
+    color: var(--color-steel);
+    font-family: var(--font-sans);
+    /* Motion sections pin horizontally; the page itself must never scroll sideways. */
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    color: var(--color-paper);
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Visible keyboard focus everywhere — checked against WCAG AA. */
+  :focus-visible {
+    outline: 2px solid var(--color-hazard);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-hazard);
+    color: var(--color-void);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /*
+    Stencil section numbers ("01 —", "02 —") used as section eyebrows.
+  */
+  .eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-hazard);
+  }
+
+  /*
+    Hazard-stripe divider — the diagonal caution tape motif.
+
+    An opaque base underneath the stripes, so the band reads as a strip of tape
+    applied across the page rather than as yellow chevrons floating over
+    whatever section happens to be behind it. Roughly equal stripe and gap at
+    45 degrees is what actual barricade tape looks like; widening the gap makes
+    it read as a dashed rule instead.
+  */
+  .hazard-stripe {
+    background-color: var(--color-void);
+    background-image: repeating-linear-gradient(
+      45deg,
+      var(--color-hazard) 0 14px,
+      transparent 14px 28px
+    );
+    /* Hairlines top and bottom give the tape an edge to sit against, which is
+       what stops it looking like a background pattern. */
+    box-shadow:
+      inset 0 1px 0 rgb(0 0 0 / 0.55),
+      inset 0 -1px 0 rgb(0 0 0 / 0.55);
+  }
 }
+
+/*
+  ---------------------------------------------------------------------------
+  Motion enablement.
+
+  Content is visible by DEFAULT. Elements that GSAP animates in are only
+  hidden once the `js-motion` class lands on <html> from a client component —
+  so a crawler, a JS failure, or a user with reduced motion always sees the
+  fully readable page. Hiding by default in base CSS is exactly how a
+  beautiful site quietly loses its rankings.
+  ---------------------------------------------------------------------------
+*/
+.js-motion [data-animate] {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.js-motion [data-animate="up"] {
+  transform: translateY(2rem);
+}
+
+.js-motion [data-animate="scale"] {
+  transform: scale(0.96);
+}
+
+/*
+  ---------------------------------------------------------------------------
+  On `prefers-reduced-motion`.
+
+  This site deliberately does not gate its motion on that query, and there are
+  no `@media (prefers-reduced-motion: reduce)` blocks anywhere in this file.
+
+  The reason is that the query follows the operating system, and Windows
+  reports "reduce" whenever Settings -> Accessibility -> Visual effects ->
+  Animation effects is off. That is a common default, it is what battery saver
+  does, and it is set on machines whose owners have no vestibular sensitivity
+  at all. Honouring it here meant those visitors got no hero sequence, no
+  background clips and no reveals: four poster stills and a page that looked
+  broken rather than considerate.
+
+  Two things follow, and both matter if this is ever revisited:
+
+    - the escape hatch is `?motion=off`, handled in ScrollFrameAnimation,
+      which is the only motion heavy enough to be worth opting out of;
+    - a rule here that forces the static layout with `!important` would fight
+      the JavaScript rather than back it up, because the components now decide
+      for themselves whether to run. That is why there are none.
+  ---------------------------------------------------------------------------
+*/
+
+/*
+  GSAP SplitText mask wrappers. `mask: "lines"` wraps each line in a parent
+  that must clip, otherwise the line is visible above its own box before it
+  animates in and the wipe reads as a plain fade.
+*/
+.split-line {
+  display: block;
+  will-change: transform;
+}
+
+.split-line-mask,
+.split-line > div {
+  overflow: hidden;
+}
+
+/*
+  ---------------------------------------------------------------------------
+  Scroll-scrubbed frame sequences (ScrollFrameAnimation).
+
+  Default — server HTML, no JS, reduced motion, touch, Save-Data — is one
+  screen tall with every beat of copy in normal flow over the poster frame.
+  Nothing is hidden and nothing is pinned. The component sets
+  `data-seq="scrub"` on itself only once it has decided to run, and only then
+  does the section grow to its scroll length and the beats stack up to
+  cross-fade.
+
+  The pinned styles hang off the component's own attribute rather than off
+  `.js-motion`, so a sequence is live or static purely on its own decision and
+  can never be left half-applied by a class some other component owns.
+  ---------------------------------------------------------------------------
+*/
+.seq-track {
+  position: relative;
+  height: auto;
+}
+
+.seq-stage {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.seq-copy {
+  position: relative;
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-block: 8rem 4rem;
+}
+
+/*
+  The page gutter lives on the beat, not on the copy box. Pinned, the beats are
+  absolutely positioned, and an absolutely-positioned child resolves its offsets
+  against its container's *padding* box — so padding on the copy box would be
+  ignored by `inset-inline: 0` and the copy would run to the edge of the screen.
+*/
+.seq-panel {
+  padding-inline: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .seq-copy {
+    padding-block: 9rem 6rem;
+  }
+  .seq-panel {
+    padding-inline: 2rem;
+  }
+}
+
+.seq-panel + .seq-panel {
+  margin-top: 4rem;
+}
+
+.seq-track[data-seq="scrub"] {
+  height: var(--seq-scroll, 300svh);
+}
+
+.seq-track[data-seq="scrub"] .seq-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+}
+
+/*
+  Pinned: the beats occupy the same block, anchored to the bottom of the frame,
+  and cross-fade. The canvas and scrim sit on negative z-index layers behind.
+
+  The copy box has to be stretched over the stage explicitly. Every beat inside
+  it is absolutely positioned, so left in normal flow it would have no content
+  to be sized by, collapse to its own padding, and hang the beats off the top
+  of the frame where the stage clips them.
+*/
+.seq-track[data-seq="scrub"] .seq-copy {
+  position: absolute;
+  inset: 0;
+  padding-block: 0;
+}
+
+.seq-track[data-seq="scrub"] .seq-panel {
+  position: absolute;
+  inset-inline: 0;
+  /* Explicit, for the reason above: the copy box's padding cannot do it. */
+  bottom: clamp(2.5rem, 8vh, 5rem);
+  will-change: opacity, transform;
+}
+
+.seq-track[data-seq="scrub"] .seq-panel + .seq-panel {
+  margin-top: 0;
+}
+
+/*
+  Scrim.
+
+  Unpinned, the beats run the full height of the poster, so the wash has to be
+  even or the top ones sit on bright sky with no contrast. Pinned, the copy is
+  anchored to the bottom, so the gradient is weighted there and the frames read
+  clearly through the top two thirds.
+*/
+.seq-scrim {
+  background: color-mix(in oklab, var(--color-void) 80%, transparent);
+}
+
+.seq-track[data-seq="scrub"] .seq-scrim {
+  background: linear-gradient(
+    to top,
+    var(--color-void) 0%,
+    color-mix(in oklab, var(--color-void) 88%, transparent) 22%,
+    color-mix(in oklab, var(--color-void) 45%, transparent) 58%,
+    color-mix(in oklab, var(--color-void) 20%, transparent) 100%
+  );
+}
+
+/* The scroll cue only means anything while the section is actually pinned. */
+.seq-cue {
+  display: none;
+}
+
+.seq-track[data-seq="scrub"] .seq-cue {
+  display: flex;
+}
+
+/*
+  There is deliberately no `prefers-reduced-motion` block here.
+
+  Every pinned style above hangs off `[data-seq="scrub"]`, which
+  ScrollFrameAnimation only sets once it has decided to run — and it refuses to
+  run under reduced motion. So the rules in this file already collapse to the
+  static stack for exactly the visitors a media query would have caught, and
+  the component stays the single source of truth for whether the section
+  scrubs.
+
+  A media query here would also be a liability rather than a safety net: its
+  `!important` overrides would still be forcing the static layout when the
+  component has been told explicitly to scrub anyway (`?motion=on`, the preview
+  switch), leaving the canvas animating behind a section that never pins.
+*/
