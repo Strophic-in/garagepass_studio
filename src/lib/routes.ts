@@ -69,23 +69,86 @@ export const navRoutes = coreRoutes.filter(
 );
 
 /**
- * 301s from the legacy WordPress site. Preserves whatever equity the domain
- * has and clears the dead `/website_b5800383/*` staging paths that are
- * currently linked from the live navigation.
+ * 301s from the legacy WordPress site.
+ *
+ * garagepass.co is a live WordPress install whose Yoast sitemap lists 31 URLs.
+ * Every one of them is a page a search engine may already rank, so every one
+ * needs somewhere to land — a 404 after the cutover throws away whatever
+ * equity that URL had rather than passing it to the page that replaced it.
+ *
+ * The list below is taken straight from that sitemap, not guessed. Each entry
+ * points at the closest match in intent rather than at the homepage, because a
+ * redirect to an unrelated page is treated as a soft 404 and passes nothing.
+ *
+ * Two of the old slugs say "wewrench-diy": the shop was renamed, and those
+ * URLs may still carry links from the earlier brand.
+ *
+ * Regenerate this list before launch if the WordPress site changes:
+ *   curl -sL https://garagepass.co/page-sitemap.xml | grep -oE '<loc>[^<]+'
  */
 export const legacyRedirects: { source: string; destination: string }[] = [
-  { source: "/about", destination: "/membership" },
+  // --- pages -------------------------------------------------------------
+  { source: "/about", destination: "/our-story" },
+  { source: "/services", destination: "/membership" },
+  { source: "/rules", destination: "/faq" },
+  { source: "/free-trial", destination: "/tour" },
   { source: "/subscribe", destination: "/membership" },
-  { source: "/tc-privacy", destination: "/terms-privacy" },
+  { source: "/booking", destination: "/membership" },
+  { source: "/account-settings", destination: "/membership" },
+  { source: "/purchase-add-ons-storage-services", destination: "/membership" },
+  { source: "/change-tier-add-hours", destination: "/membership" },
   { source: "/member-portal", destination: "/membership" },
+  { source: "/tc-privacy", destination: "/terms-privacy" },
+  // The single most valuable legacy URL: exact intent match for the new page.
+  { source: "/south-bay-san-jose-preorder", destination: "/san-jose/waitlist" },
+  // A leftover theme demo page that should never have been published.
+  { source: "/home-tastyvibes", destination: "/" },
 
-  // Orphaned Bluehost site-builder staging URLs, live in the current nav.
+  // --- posts -------------------------------------------------------------
+  { source: "/hello-world", destination: "/" },
+  {
+    source: "/top-benefits-of-diy-auto-repair",
+    destination: "/oakland/diy-auto-shop",
+  },
+  {
+    source: "/how-to-book-your-workspace-rental",
+    destination: "/membership",
+  },
+  { source: "/understanding-shop-rules-at-wewrench-diy", destination: "/faq" },
+  {
+    source: "/essential-mechanic-tools-for-diy-repairs",
+    destination: "/tools",
+  },
+  {
+    source: "/training-opportunities-at-wewrench-diy",
+    destination: "/events",
+  },
+  {
+    source: "/understanding-liability-forms-for-diy-repairs",
+    destination: "/faq",
+  },
+
+  // --- category archives --------------------------------------------------
+  { source: "/category/auto", destination: "/oakland/diy-auto-shop" },
+  { source: "/category/booking", destination: "/membership" },
+  { source: "/category/liability", destination: "/faq" },
+  { source: "/category/rules", destination: "/faq" },
+  { source: "/category/tools", destination: "/tools" },
+  { source: "/category/training", destination: "/events" },
+  { source: "/category/uncategorized", destination: "/" },
+
+  // --- orphaned Bluehost site-builder staging paths, linked from the old nav
   { source: "/website_b5800383", destination: "/" },
   { source: "/website_b5800383/subscribe", destination: "/membership" },
   { source: "/website_b5800383/tour", destination: "/tour" },
   { source: "/website_b5800383/member-portal", destination: "/membership" },
 
-  // WordPress plumbing that should never have been crawlable.
+  // --- WordPress plumbing that should never have been crawlable -----------
   { source: "/feed", destination: "/" },
   { source: "/comments/feed", destination: "/" },
+  { source: "/wp-login.php", destination: "/" },
+  { source: "/xmlrpc.php", destination: "/" },
+  { source: "/wp-admin/:path*", destination: "/" },
+  { source: "/wp-content/:path*", destination: "/" },
+  { source: "/wp-includes/:path*", destination: "/" },
 ];
