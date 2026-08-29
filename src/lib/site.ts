@@ -84,13 +84,30 @@ export const site = {
   sanJose: {
     opening: "Q1 2027",
     openingLong: "Q4 2026 / Q1 2027",
+    /*
+      Taken from the search-area polygon on the South Bay map, not guessed.
+      The map covers a wider catchment than this list originally claimed —
+      Mountain View, Los Gatos and Saratoga all sit inside the boundary and
+      were missing.
+
+      It matters more than a copy detail: this array feeds the `areaServed`
+      on the San Jose LocalBusiness schema and on every /san-jose/[slug]
+      landing page, plus the visible copy on four pages. Each name is a
+      "diy auto shop <city>" query the South Bay pages can answer.
+
+      Alum Rock is on the map but is a San Jose district rather than a city,
+      so it stays in the map's alt text and out of this list.
+    */
     areaServed: [
       "San Jose",
       "Santa Clara",
       "Sunnyvale",
-      "Campbell",
+      "Mountain View",
       "Milpitas",
+      "Campbell",
       "Cupertino",
+      "Los Gatos",
+      "Saratoga",
     ],
   },
 } as const;

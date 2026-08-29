@@ -149,5 +149,5 @@ export function southBayMapExists() {
 
 export const SOUTH_BAY_MAP = {
   src: "/images/garagepass-south-bay-search-area-map.webp",
-  alt: "Map of the South Bay showing candidate GaragePass locations across San Jose, Santa Clara, Milpitas, Mountain View, Campbell, Saratoga, Los Gatos and Alum Rock",
+  alt: "Map of the South Bay marking candidate GaragePass sites across the search area, covering San Jose, Santa Clara, Milpitas, Mountain View, Campbell, Saratoga, Los Gatos and Alum Rock, bounded roughly by the 880, 101, 280 and 85",
 } as const;
