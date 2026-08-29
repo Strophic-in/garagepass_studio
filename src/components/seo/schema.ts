@@ -20,6 +20,7 @@ import {
 } from "@/lib/site";
 
 const ORG_ID = `${site.url}/#organization`;
+const FOUNDER_ID = `${site.url}/#founder`;
 const SHOP_ID = `${site.url}/#oakland-shop`;
 const WEBSITE_ID = `${site.url}/#website`;
 
@@ -43,8 +44,34 @@ export function organizationSchema() {
     legalName: site.legalName,
     url: site.url,
     logo: abs(photos.liftBays.src),
-    founder: { "@type": "Person", name: site.founder },
+    // Referenced by @id rather than inlined, so the Person node carries its
+    // own detail once and both the Organization and the shop can point at it.
+    founder: { "@id": FOUNDER_ID },
     sameAs: [site.social.instagram, site.social.tiktok, site.social.facebook],
+  };
+}
+
+/**
+ * The founder as a first-class `Person` node.
+ *
+ * A named owner with a role, an employer and a place of work is the clearest
+ * experience-and-trust signal a local business can give a search engine, and it
+ * is the machine-readable half of the `Founder` section. Google treats an owner
+ * it can identify very differently from an anonymous storefront.
+ *
+ * `image` is attached only when the portrait actually exists, because a Person
+ * node pointing at a 404 is worse than one without a picture.
+ */
+export function founderSchema({ image }: { image?: string } = {}) {
+  return {
+    "@type": "Person",
+    "@id": FOUNDER_ID,
+    name: site.founder,
+    jobTitle: "Founder",
+    worksFor: { "@id": ORG_ID },
+    workLocation: { "@id": SHOP_ID },
+    url: abs("/our-story"),
+    ...(image ? { image: abs(image) } : {}),
   };
 }
 

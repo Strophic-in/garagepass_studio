@@ -31,11 +31,17 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Static media never changes without a filename change, so let the CDN
-        // and the browser hold it for a year. Without this the ~9 MB of video
-        // re-downloads on every visit — Next.js only sets long cache headers on
-        // its own /_next/static output, not on files served from /public.
-        source: "/:dir(images|videos)/:path*",
+        /*
+          Static media never changes without a filename change, so let the CDN
+          and the browser hold it for a year. Next.js only sets long cache
+          headers on its own /_next/static output, never on files served from
+          /public, so without this every visit re-downloads the lot.
+
+          `frames` matters most and was missed at first: the AVIF sequences are
+          12 MB across four sets, an order of magnitude more than the images and
+          clips, and they were being revalidated on every page view.
+        */
+        source: "/:dir(images|videos|frames)/:path*",
         headers: [
           {
             key: "Cache-Control",

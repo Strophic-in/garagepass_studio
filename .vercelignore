@@ -1,0 +1,9 @@
+# Original AI renders and frame exports. Gigabytes of masters that only exist
+# to regenerate what is already committed under public/ — never needed at
+# build time, and Vercel would otherwise upload them on a CLI deploy.
+media-source/
+
+# Local-only working files.
+docs/
+scripts/
+*.log

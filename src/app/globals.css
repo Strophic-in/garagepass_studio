@@ -190,6 +190,20 @@
   can never be left half-applied by a class some other component owns.
   ---------------------------------------------------------------------------
 */
+/*
+  Geometry here is deliberately identical whether or not the scrub is running.
+
+  It used to differ: the beats sat in normal flow until the component decided
+  to pin, then went absolute. That flip happened at hydration and moved three
+  full-width copy blocks on screen — measured at CLS 0.32, a Core Web Vitals
+  failure on its own, and a ranking signal. Reserving the final positions in
+  the server HTML costs nothing and takes the visible shift to zero.
+
+  What still changes on `[data-seq="scrub"]` is the track's height and the
+  stage's stickiness. Both are safe: the section fills the viewport either way,
+  so growing the track only moves content that is already below the fold, which
+  does not count towards CLS and is not visible to move.
+*/
 .seq-track {
   position: relative;
   height: auto;
@@ -197,41 +211,45 @@
 
 .seq-stage {
   position: relative;
-  min-height: 100svh;
-  display: flex;
-  align-items: flex-end;
+  height: 100svh;
   overflow: hidden;
 }
 
+/* Stretched over the stage, because every beat inside is absolutely
+   positioned and would otherwise leave this box with nothing to size it. */
 .seq-copy {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
   max-width: 72rem;
   margin-inline: auto;
-  padding-block: 8rem 4rem;
 }
 
 /*
-  The page gutter lives on the beat, not on the copy box. Pinned, the beats are
-  absolutely positioned, and an absolutely-positioned child resolves its offsets
-  against its container's *padding* box — so padding on the copy box would be
-  ignored by `inset-inline: 0` and the copy would run to the edge of the screen.
+  The page gutter lives on the beat, not on the copy box: an absolutely
+  positioned child resolves its offsets against its container's *padding* box,
+  so padding on the copy box is ignored by `inset-inline: 0` and the copy would
+  run to the edge of the screen.
 */
 .seq-panel {
+  position: absolute;
+  inset-inline: 0;
+  bottom: clamp(2.5rem, 8vh, 5rem);
   padding-inline: 1.25rem;
+  /* Without JavaScript exactly one beat shows, and it is the one carrying the
+     heading, the lead and the calls to action. The rest stay in the HTML for
+     crawlers and come alive as soon as the scrub runs. */
+  opacity: 0;
+}
+
+.seq-panel:first-of-type {
+  opacity: 1;
 }
 
 @media (min-width: 640px) {
-  .seq-copy {
-    padding-block: 9rem 6rem;
-  }
   .seq-panel {
     padding-inline: 2rem;
   }
-}
-
-.seq-panel + .seq-panel {
-  margin-top: 4rem;
 }
 
 .seq-track[data-seq="scrub"] {
@@ -241,49 +259,13 @@
 .seq-track[data-seq="scrub"] .seq-stage {
   position: sticky;
   top: 0;
-  height: 100svh;
-}
-
-/*
-  Pinned: the beats occupy the same block, anchored to the bottom of the frame,
-  and cross-fade. The canvas and scrim sit on negative z-index layers behind.
-
-  The copy box has to be stretched over the stage explicitly. Every beat inside
-  it is absolutely positioned, so left in normal flow it would have no content
-  to be sized by, collapse to its own padding, and hang the beats off the top
-  of the frame where the stage clips them.
-*/
-.seq-track[data-seq="scrub"] .seq-copy {
-  position: absolute;
-  inset: 0;
-  padding-block: 0;
 }
 
 .seq-track[data-seq="scrub"] .seq-panel {
-  position: absolute;
-  inset-inline: 0;
-  /* Explicit, for the reason above: the copy box's padding cannot do it. */
-  bottom: clamp(2.5rem, 8vh, 5rem);
   will-change: opacity, transform;
 }
 
-.seq-track[data-seq="scrub"] .seq-panel + .seq-panel {
-  margin-top: 0;
-}
-
-/*
-  Scrim.
-
-  Unpinned, the beats run the full height of the poster, so the wash has to be
-  even or the top ones sit on bright sky with no contrast. Pinned, the copy is
-  anchored to the bottom, so the gradient is weighted there and the frames read
-  clearly through the top two thirds.
-*/
 .seq-scrim {
-  background: color-mix(in oklab, var(--color-void) 80%, transparent);
-}
-
-.seq-track[data-seq="scrub"] .seq-scrim {
   background: linear-gradient(
     to top,
     var(--color-void) 0%,
@@ -305,12 +287,9 @@
 /*
   There is deliberately no `prefers-reduced-motion` block here.
 
-  Every pinned style above hangs off `[data-seq="scrub"]`, which
-  ScrollFrameAnimation only sets once it has decided to run — and it refuses to
-  run under reduced motion. So the rules in this file already collapse to the
-  static stack for exactly the visitors a media query would have caught, and
-  the component stays the single source of truth for whether the section
-  scrubs.
+  ScrollFrameAnimation decides for itself whether to run, and the component is
+  the single source of truth for that. See the note in its `useScrubEnabled`
+  for why the OS-level query is not consulted.
 
   A media query here would also be a liability rather than a safety net: its
   `!important` overrides would still be forcing the static layout when the

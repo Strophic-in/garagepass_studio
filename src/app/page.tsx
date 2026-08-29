@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { HazardRule } from "@/components/ui/primitives";
+import {
+  Founder,
+  FOUNDER_PORTRAIT,
+  founderPortraitExists,
+} from "@/components/sections/Founder";
 import { EntryHero } from "@/components/sections/EntryHero";
 import {
   Faq,
@@ -18,6 +23,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import {
   autoRepairSchema,
   faqSchema,
+  founderSchema,
   graph,
   organizationSchema,
   websiteSchema,
@@ -39,6 +45,9 @@ export default function HomePage() {
           organizationSchema(),
           websiteSchema(),
           autoRepairSchema(),
+          founderSchema(
+            founderPortraitExists() ? { image: FOUNDER_PORTRAIT.src } : {},
+          ),
           faqSchema(),
         )}
       />
@@ -59,6 +68,7 @@ export default function HomePage() {
         <Included />
         <Pricing />
         <Gallery />
+        <Founder />
         <Location />
         <Faq />
 
