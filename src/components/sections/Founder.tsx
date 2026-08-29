@@ -36,40 +36,74 @@ export function Founder() {
       <Container>
         <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
           {hasPortrait && (
-            <figure
-              data-animate="scale"
-              className="relative order-1 aspect-[4/5] overflow-hidden rounded-sm border border-hairline/60"
-            >
-              {/*
-                The photograph is taller than its frame so the parallax has
-                somewhere to travel without ever exposing an edge — the same
-                headroom trick AmbientVideo uses.
-              */}
-              <div
-                data-parallax="8"
-                className="absolute inset-x-0 -inset-y-[12%] will-change-transform"
+            <div className="relative order-1 pb-16 sm:pb-20 lg:pb-24">
+              <figure
+                data-animate="scale"
+                className="relative aspect-[4/5] overflow-hidden rounded-sm border border-hairline/60"
               >
-                <Image
-                  src={FOUNDER_PORTRAIT.src}
-                  alt={FOUNDER_PORTRAIT.alt}
-                  fill
-                  sizes="(min-width: 1024px) 40vw, 100vw"
-                  className="object-cover"
-                />
-              </div>
+                {/*
+                  The photograph is taller than its frame so the parallax has
+                  somewhere to travel without ever exposing an edge — the same
+                  headroom trick AmbientVideo uses.
+                */}
+                <div
+                  data-parallax="8"
+                  className="absolute inset-x-0 -inset-y-[12%] will-change-transform"
+                >
+                  <Image
+                    src={FOUNDER_PORTRAIT.src}
+                    alt={FOUNDER_PORTRAIT.alt}
+                    fill
+                    sizes="(min-width: 1024px) 42vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
 
-              {/* Anchors the caption and keeps the name legible over any crop. */}
-              <div
-                aria-hidden
-                className="absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-void via-void/70 to-transparent"
-              />
-              <figcaption className="absolute right-5 bottom-5 left-5">
-                <p className="eyebrow mb-1">Founder</p>
-                <p className="font-display text-xl font-semibold text-paper uppercase">
-                  {site.founder}
-                </p>
-              </figcaption>
-            </figure>
+                {/* Anchors the caption and keeps the name legible over any crop. */}
+                <div
+                  aria-hidden
+                  className="absolute inset-x-0 bottom-0 h-2/5 bg-linear-to-t from-void via-void/70 to-transparent"
+                />
+                <figcaption className="absolute right-5 bottom-5 left-5">
+                  <p className="eyebrow mb-1">Founder</p>
+                  <p className="font-display text-xl font-semibold text-paper uppercase">
+                    {site.founder}
+                  </p>
+                </figcaption>
+              </figure>
+
+              {/*
+                His own build, overlapped into the corner of the portrait.
+
+                It drifts at more than twice the rate of the photograph behind
+                it, which is what sells the depth: two images moving at the same
+                speed read as one flat picture, and the gap between the rates is
+                the whole effect. Hidden below `sm` — at phone widths there is
+                no room to overlap anything without covering the face.
+              */}
+              <figure
+                data-animate="up"
+                className="absolute right-0 -bottom-2 hidden w-[46%] overflow-hidden rounded-sm border border-hairline/60 shadow-2xl shadow-void/60 sm:block"
+              >
+                <div className="relative aspect-[3/2] overflow-hidden">
+                  <div
+                    data-parallax="18"
+                    className="absolute inset-x-0 -inset-y-[22%] will-change-transform"
+                  >
+                    <Image
+                      src={FOUNDER_BUILD.src}
+                      alt={FOUNDER_BUILD.alt}
+                      fill
+                      sizes="(min-width: 1024px) 20vw, 40vw"
+                      className="object-cover"
+                    />
+                  </div>
+                </div>
+                <figcaption className="bg-surface px-3 py-2 text-xs text-steel-dim">
+                  His own build, somewhere off the 1
+                </figcaption>
+              </figure>
+            </div>
           )}
 
           <div className={hasPortrait ? "order-2" : ""}>
@@ -140,5 +174,11 @@ export function founderPortraitExists() {
  */
 export const FOUNDER_PORTRAIT = {
   src: "/images/garagepass-founder-abraham-barkhordar.webp",
-  alt: `${site.founder}, founder of ${site.name}, in the shop at ${site.address.street} in ${site.address.city}, California`,
+  alt: `${site.founder}, founder of ${site.name}, standing between a Jeep Cherokee and a Porsche Boxster on a Bay Area street`,
+} as const;
+
+/** The second frame: his own vehicle, used as the overlapping inset. */
+export const FOUNDER_BUILD = {
+  src: "/images/garagepass-founder-jeep-build.webp",
+  alt: "A Jeep Cherokee with a rooftop tent parked on a Northern California beach at dusk",
 } as const;
