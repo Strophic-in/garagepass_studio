@@ -296,3 +296,66 @@
   component has been told explicitly to scrub anyway (`?motion=on`, the preview
   switch), leaving the canvas animating behind a section that never pins.
 */
+
+/*
+  ---------------------------------------------------------------------------
+  Wordmark.
+
+  Live text, not an image — see the note in Wordmark.tsx. The lean is a
+  synthesised oblique because Oswald ships no italic, and the angle is shared
+  with the app icon so the two match exactly.
+  ---------------------------------------------------------------------------
+*/
+.wordmark {
+  --wordmark-skew: -12deg;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42em;
+  /* The skew leans glyphs to the right and would clip the final S against a
+     tight parent, so the box is given the space back. */
+  padding-right: 0.14em;
+}
+
+.wordmark-text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  /* Negative, on purpose: a logotype wants its letters touching. The nav
+     labels beside it are tracked wide, which is what makes them read as
+     labels and this read as a mark. */
+  letter-spacing: -0.012em;
+  color: var(--color-paper);
+  transform: skewX(var(--wordmark-skew));
+  white-space: nowrap;
+}
+
+/*
+  Speed streaks trailing the G. Skewed to the same angle as the letters so
+  they read as motion behind the word; three of them, shortening as they fall
+  away, because an even stack reads as a static bar chart.
+*/
+.wordmark-streaks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.16em;
+  transform: skewX(var(--wordmark-skew));
+}
+
+.wordmark-streaks i {
+  display: block;
+  height: 0.115em;
+  border-radius: 1px;
+  background: var(--color-hazard);
+}
+
+.wordmark-streaks i:nth-child(1) {
+  width: 0.85em;
+}
+.wordmark-streaks i:nth-child(2) {
+  width: 0.58em;
+  opacity: 0.72;
+}
+.wordmark-streaks i:nth-child(3) {
+  width: 0.34em;
+  opacity: 0.45;
+}

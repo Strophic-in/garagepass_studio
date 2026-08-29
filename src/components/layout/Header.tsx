@@ -2,6 +2,7 @@ import Link from "next/link";
 import { site } from "@/lib/site";
 import { navRoutes } from "@/lib/routes";
 import { ButtonLink, Container } from "@/components/ui/primitives";
+import { Wordmark } from "@/components/ui/Wordmark";
 
 /**
  * Server-rendered navigation — no client JS needed for the links themselves.
@@ -13,11 +14,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-hairline/60 bg-void/85 backdrop-blur-md">
       <Container className="flex h-16 items-center justify-between gap-6">
-        <Link
-          href="/"
-          className="font-display text-lg font-bold tracking-[0.18em] text-paper uppercase"
-        >
-          Garage<span className="text-hazard">Pass</span>
+        <Link href="/" aria-label={`${site.name} home`}>
+          <Wordmark className="text-lg" />
         </Link>
 
         <nav aria-label="Primary" className="hidden items-center gap-7 md:flex">

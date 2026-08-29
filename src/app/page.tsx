@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { HazardRule } from "@/components/ui/primitives";
+import { SouthBay } from "@/components/sections/SouthBay";
 import {
   Founder,
   FOUNDER_PORTRAIT,
@@ -70,6 +71,7 @@ export default function HomePage() {
         <Gallery />
         <Founder />
         <Location />
+        <SouthBay />
         <Faq />
 
         <HazardRule />

@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import {
   site,
   tiers,
@@ -452,16 +451,6 @@ export function Location() {
             </ButtonLink>
           </div>
 
-          <p className="mt-8 border-l-2 border-hazard/60 pl-4 text-sm text-steel-dim">
-            San Jose is coming {site.sanJose.openingLong}.{" "}
-            <Link
-              href="/san-jose/waitlist"
-              className="text-hazard underline underline-offset-2 decoration-hazard/50 hover:decoration-hazard"
-            >
-              Join the waitlist
-            </Link>{" "}
-            for founding-member pricing.
-          </p>
         </div>
 
         <div
