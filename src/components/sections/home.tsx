@@ -17,10 +17,7 @@ import {
 } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
 import { clips } from "@/lib/videos";
-import { readFrameSet } from "@/lib/frames";
 import { AmbientVideo } from "@/components/motion/AmbientVideo";
-import { Beat } from "@/components/motion/Beat";
-import { ScrollFrameAnimation } from "@/components/motion/ScrollFrameAnimation";
 
 /** Section 01 — problem framing. The reason anyone searches for this at all. */
 export function Problem() {
@@ -55,29 +52,26 @@ export function Problem() {
 }
 
 /**
- * Section 02 — THE LIFT. The centrepiece.
+ * Section 02 — what the membership actually gets you.
  *
- * A pinned section where scroll raises the car and four chapters of copy
- * arrive in step with what the camera reveals: the bay, then the lift, then
- * the tools under it, then what happens to the fluids. The argument and the
- * picture advance together.
+ * This was a second pinned frame sequence, and it was a mistake: it ended on a
+ * car raised on a lift, which is exactly how the hero two screens above it
+ * ends. On a phone the two payoffs land barely a screen apart and read as the
+ * page repeating itself. Every other clip on this page is already spoken for,
+ * so swapping the footage would only have moved the duplication somewhere
+ * else.
  *
- * Rendered as an AVIF frame sequence rather than a scrubbed video. It used to
- * be an all-intra H.264 clip, which is the classic way to do this, but the
- * numbers were not close: that encode was 1280px wide and 3.32 MB for the
- * desktop variant alone and still looked soft on a full-bleed section, because
- * a 720p source stretched to fill a 1440px stage has nothing left to give.
- * The sequence below is 1600px, sharper, and the desktop and phone sets
- * together weigh less than the three video encodes they replaced.
+ * Dropping the scrub costs nothing editorially, because the copy was never
+ * about the lift rising — it is about what is included, who the bay belongs to
+ * while you have it, the tools, and the fluid disposal. Those read better as a
+ * grid you can scan than as four beats you have to scroll 450vh to collect.
  *
- * All four chapters are real DOM in the server HTML. Without JavaScript the
- * track collapses to its natural height and they read as a plain stack.
+ * It also gave the homepage back nearly five viewports of pinned scrolling
+ * before the pricing, which mattered most on the devices that were finding the
+ * repetition most obvious.
  */
 export function Lift() {
-  const desktop = readFrameSet("lift-bay");
-  const mobile = readFrameSet("lift-bay-mobile");
-
-  const chapters = [
+  const points = [
     {
       eyebrow: "Get it in the air",
       title: (
@@ -88,8 +82,6 @@ export function Lift() {
         </>
       ),
       body: "Oil change, brake job, suspension install, engine swap, transmission swap, full classic restoration. If you can wrench it, you can do it here.",
-      /* Boundaries leave a gap between beats; see the note on `Beat`. */
-      range: [0, 0, 0.2, 0.24] as [number, number, number, number],
     },
     {
       eyebrow: "The lift",
@@ -101,7 +93,6 @@ export function Lift() {
         </>
       ),
       body: "Book your time online and the bay is yours for the slot. Nobody is sharing it, and nobody is going to ask you to drop the car so they can take a turn.",
-      range: [0.26, 0.3, 0.46, 0.5] as [number, number, number, number],
     },
     {
       eyebrow: "The tools",
@@ -113,7 +104,6 @@ export function Lift() {
         </>
       ),
       body: "Hand tools through engine hoists, transmission jacks and smoke machines, included with no rental fee. Bring your own if you prefer them.",
-      range: [0.52, 0.56, 0.72, 0.76] as [number, number, number, number],
     },
     {
       eyebrow: "The cleanup",
@@ -125,55 +115,42 @@ export function Lift() {
         </>
       ),
       body: "Drain your oil, coolant and transmission fluid straight into our collection containers. We handle disposal and metal recycling from there.",
-      range: [0.78, 0.82, 1, 1] as [number, number, number, number],
     },
   ];
 
   return (
-    <section
+    <Section
       id="lift"
-      aria-labelledby="lift-heading"
-      className="relative isolate border-y border-hairline/50"
+      index={2}
+      eyebrow="What you get"
+      title="A real shop, by the hour"
+      lead="Four bays, every tool on the wall, and somewhere to put the fluids when you are done."
+      className="border-y border-hairline/50"
     >
       {/*
-        The chapters are <h3>s, so without this the outline jumps straight from
-        the page <h1> to <h3>. Visually hidden because each chapter already
-        carries its own visible heading — this only names the section for
-        assistive tech and keeps the levels sequential.
+        `Section` renders the heading as the <h2>, so these are <h3>s and the
+        outline stays sequential.
       */}
-      <h2 id="lift-heading" className="sr-only">
-        What you can do at GaragePass
-      </h2>
-
-      <ScrollFrameAnimation
-        frames={desktop.urls}
-        framesMobile={mobile.urls}
-        poster={desktop.poster}
-        posterMobile={mobile.poster}
-        alt="A sedan raised on a lift at GaragePass with its undercarriage exposed"
-        scrollHeightVh={450}
-      >
-        <div className="seq-copy">
-          {chapters.map((c, i) => (
-            <Beat key={i} range={c.range} className="max-w-xl">
-              <p className="eyebrow mb-3 flex items-center gap-3">
-                <span className="tabular-nums">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span aria-hidden className="h-px w-8 bg-hazard/50" />
-                {c.eyebrow}
-              </p>
-              <h3 className="font-display text-3xl leading-[1.05] font-semibold text-paper uppercase sm:text-5xl">
-                {c.title}
-              </h3>
-              <p className="mt-4 text-base leading-relaxed text-steel sm:text-lg">
-                {c.body}
-              </p>
-            </Beat>
-          ))}
-        </div>
-      </ScrollFrameAnimation>
-    </section>
+      <div className="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-2">
+        {points.map((c, i) => (
+          <article key={i} data-animate="up">
+            <p className="eyebrow mb-3 flex items-center gap-3">
+              <span className="tabular-nums">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span aria-hidden className="h-px w-8 bg-hazard/50" />
+              {c.eyebrow}
+            </p>
+            <h3 className="font-display text-2xl leading-[1.08] font-semibold text-paper uppercase sm:text-3xl">
+              {c.title}
+            </h3>
+            <p className="mt-4 text-base leading-relaxed text-steel">
+              {c.body}
+            </p>
+          </article>
+        ))}
+      </div>
+    </Section>
   );
 }
 
