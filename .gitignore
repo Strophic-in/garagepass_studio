@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Original AI video renders — kept for re-encoding, never deployed.
 media-source/
+
+.vercel
+.env*

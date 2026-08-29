@@ -466,11 +466,22 @@ export function ScrollFrameAnimation({
           component has decided which frame set to use.
         */}
         <picture>
+          {/*
+            The DESKTOP poster is the <source> and the phone one is the <img>
+            fallback, which is the opposite of the obvious way round.
+
+            The preload scanner starts on the `<img src>` before it has
+            evaluated the `<source media>`, so whichever file sits on the img
+            gets fetched whatever the viewport. Putting the large poster there
+            cost every phone an extra 116 KB it then threw away. This way the
+            speculative fetch is the small file, and the connection that eats
+            the waste is the one that can afford it.
+          */}
           {posterMobile && (
-            <source srcSet={posterMobile} media="(max-width: 767px)" />
+            <source srcSet={poster} media="(min-width: 768px)" />
           )}
           <img
-            src={poster}
+            src={posterMobile ?? poster}
             alt={alt}
             fetchPriority="high"
             decoding="sync"
